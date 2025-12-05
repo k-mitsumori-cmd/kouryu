@@ -404,13 +404,11 @@ function displayTasks(tasks, formData) {
             ).join('') : '';
             
             return `
-                <div class="task-item" data-task-id="${taskId}">
+                <div class="task-item clickable-task" data-task-id="${taskId}">
                     <div class="task-header">
                         <div class="task-name-wrapper">
-                            <button class="task-toggle" data-task-id="${taskId}" aria-label="展開/折りたたみ">
-                                <span class="task-toggle-icon">▶</span>
-                            </button>
-                            <div class="task-name" data-task-id="${taskId}">${item.name}</div>
+                            <span class="task-toggle-icon">▶</span>
+                            <div class="task-name">${item.name}</div>
                         </div>
                         <button class="task-status ${item.status}" data-task-id="${taskId}" data-status="${item.status}">
                             ${getStatusLabel(item.status)}
@@ -424,7 +422,7 @@ function displayTasks(tasks, formData) {
                     </div>
                     ${subtasksHTML ? `<div class="task-subtasks">${subtasksHTML}</div>` : ''}
                     <div class="task-details" id="task-details-${taskId}" style="display: none;">
-                        <div class="task-details-loading">参考資料を読み込み中...</div>
+                        <div class="task-details-loading">詳細を作成中...</div>
                         <div class="task-details-content" style="display: none;"></div>
                     </div>
                 </div>
@@ -460,15 +458,17 @@ function displayTasks(tasks, formData) {
         });
     });
 
-    // タスク展開イベントリスナーを追加
-    document.querySelectorAll('.task-toggle, .task-name').forEach(element => {
-        element.addEventListener('click', async (e) => {
-            if (e.target.classList.contains('task-status')) return;
+    // タスク展開イベントリスナーを追加（タスクアイテム全体をクリック可能に）
+    document.querySelectorAll('.clickable-task').forEach(taskItem => {
+        taskItem.addEventListener('click', async (e) => {
+            // ステータスボタンのクリック時は展開しない
+            if (e.target.classList.contains('task-status') || e.target.closest('.task-status')) {
+                return;
+            }
             
-            const taskId = element.dataset.taskId;
+            const taskId = taskItem.dataset.taskId;
             const taskDetails = document.getElementById(`task-details-${taskId}`);
-            const taskToggle = document.querySelector(`.task-toggle[data-task-id="${taskId}"]`);
-            const taskToggleIcon = taskToggle?.querySelector('.task-toggle-icon');
+            const taskToggleIcon = taskItem.querySelector('.task-toggle-icon');
             
             if (!taskDetails) return;
             
@@ -478,10 +478,12 @@ function displayTasks(tasks, formData) {
                 // 折りたたむ
                 taskDetails.style.display = 'none';
                 if (taskToggleIcon) taskToggleIcon.textContent = '▶';
+                taskItem.classList.remove('expanded');
             } else {
                 // 展開する
                 taskDetails.style.display = 'block';
                 if (taskToggleIcon) taskToggleIcon.textContent = '▼';
+                taskItem.classList.add('expanded');
                 
                 // 参考資料を読み込む（まだ読み込んでいない場合）
                 const contentDiv = taskDetails.querySelector('.task-details-content');
@@ -493,11 +495,6 @@ function displayTasks(tasks, formData) {
                 }
             }
         });
-    });
-
-    // タスク名のクリックで展開
-    document.querySelectorAll('.task-name').forEach(nameElement => {
-        nameElement.style.cursor = 'pointer';
     });
     
     formSection.style.display = 'none';
@@ -584,7 +581,7 @@ async function loadTaskDetails(taskId, taskName, category, formData) {
         
     } catch (error) {
         console.error('参考資料の読み込みエラー:', error);
-        loadingDiv.textContent = '参考資料の読み込みに失敗しました。';
+        loadingDiv.textContent = '詳細の作成に失敗しました。';
     }
 }
 

@@ -406,6 +406,21 @@ body {
     box-shadow: var(--shadow);
 }
 
+.clickable-task {
+    cursor: pointer;
+    user-select: none;
+}
+
+.clickable-task:hover {
+    border-color: var(--primary-blue);
+    box-shadow: 0 2px 8px rgba(30, 58, 138, 0.15);
+}
+
+.clickable-task.expanded {
+    border-color: var(--primary-blue);
+    box-shadow: var(--shadow);
+}
+
 .task-header {
     display: flex;
     align-items: center;
@@ -502,6 +517,9 @@ body {
 
 .task-toggle-icon {
     transition: transform 0.2s;
+    font-size: 12px;
+    color: var(--text-secondary);
+    min-width: 16px;
 }
 
 .task-name {
