@@ -419,7 +419,6 @@ body {
     font-size: 16px;
     font-weight: 600;
     color: var(--dark);
-    flex: 1;
 }
 
 .task-status {
@@ -472,6 +471,182 @@ body {
     padding: 8px 0;
     font-size: 14px;
     color: var(--text-secondary);
+}
+
+/* タスク展開機能 */
+.task-name-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.task-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    transition: transform 0.2s;
+    font-size: 12px;
+    width: 24px;
+    height: 24px;
+}
+
+.task-toggle:hover {
+    color: var(--primary-blue);
+}
+
+.task-toggle-icon {
+    transition: transform 0.2s;
+}
+
+.task-name {
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.task-name:hover {
+    color: var(--primary-blue);
+}
+
+.task-details {
+    margin-top: 16px;
+    padding: 16px;
+    background-color: var(--gray-light);
+    border-radius: 8px;
+    border: 1px solid var(--gray-border);
+}
+
+.task-details-loading {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.task-details-content {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.task-details-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.task-details-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--dark);
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary-blue);
+}
+
+.task-details-subtitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary-blue);
+    margin-bottom: 12px;
+}
+
+.task-details-template {
+    background-color: white;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--gray-border);
+}
+
+.task-details-template-content {
+    margin-bottom: 12px;
+}
+
+.task-details-template-content pre {
+    background-color: #f8f9fa;
+    padding: 16px;
+    border-radius: 6px;
+    border: 1px solid var(--gray-border);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.btn-copy-template {
+    padding: 8px 16px;
+    background-color: var(--primary-blue);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-copy-template:hover {
+    background-color: var(--primary-blue-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
+}
+
+.task-details-checklist,
+.task-details-notes,
+.task-details-additional {
+    background-color: white;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--gray-border);
+}
+
+.task-details-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.task-details-list li {
+    padding: 8px 0;
+    padding-left: 24px;
+    position: relative;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+.task-details-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--primary-blue);
+    font-weight: bold;
+}
+
+.task-details-notes .task-details-list li::before {
+    content: '⚠️';
+}
+
+.task-details-additional .task-details-list li::before {
+    content: '💡';
 }
 
 /* 情報ボックス */
@@ -635,6 +810,33 @@ body {
     .task-status {
         width: 100%;
         text-align: center;
+    }
+
+    .task-name-wrapper {
+        width: 100%;
+    }
+
+    .task-details {
+        padding: 12px;
+    }
+
+    .task-details-title {
+        font-size: 16px;
+    }
+
+    .task-details-subtitle {
+        font-size: 14px;
+    }
+
+    .task-details-template-content pre {
+        font-size: 12px;
+        padding: 12px;
+        max-height: 300px;
+    }
+
+    .btn-copy-template {
+        width: 100%;
+        font-size: 13px;
     }
 }
 

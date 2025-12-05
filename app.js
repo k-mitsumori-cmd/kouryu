@@ -406,7 +406,12 @@ function displayTasks(tasks, formData) {
             return `
                 <div class="task-item" data-task-id="${taskId}">
                     <div class="task-header">
-                        <div class="task-name">${item.name}</div>
+                        <div class="task-name-wrapper">
+                            <button class="task-toggle" data-task-id="${taskId}" aria-label="展開/折りたたみ">
+                                <span class="task-toggle-icon">▶</span>
+                            </button>
+                            <div class="task-name" data-task-id="${taskId}">${item.name}</div>
+                        </div>
                         <button class="task-status ${item.status}" data-task-id="${taskId}" data-status="${item.status}">
                             ${getStatusLabel(item.status)}
                         </button>
@@ -418,6 +423,10 @@ function displayTasks(tasks, formData) {
                         </div>
                     </div>
                     ${subtasksHTML ? `<div class="task-subtasks">${subtasksHTML}</div>` : ''}
+                    <div class="task-details" id="task-details-${taskId}" style="display: none;">
+                        <div class="task-details-loading">参考資料を読み込み中...</div>
+                        <div class="task-details-content" style="display: none;"></div>
+                    </div>
                 </div>
             `;
         }).join('');
@@ -436,7 +445,8 @@ function displayTasks(tasks, formData) {
     
     // ステータス変更イベントリスナーを追加
     document.querySelectorAll('.task-status').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation(); // タスク展開を防ぐ
             const taskId = btn.dataset.taskId;
             const currentStatus = btn.dataset.status;
             const nextStatus = getNextStatus(currentStatus);
@@ -448,6 +458,46 @@ function displayTasks(tasks, formData) {
             // データも更新
             updateTaskStatus(taskId, nextStatus);
         });
+    });
+
+    // タスク展開イベントリスナーを追加
+    document.querySelectorAll('.task-toggle, .task-name').forEach(element => {
+        element.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('task-status')) return;
+            
+            const taskId = element.dataset.taskId;
+            const taskDetails = document.getElementById(`task-details-${taskId}`);
+            const taskToggle = document.querySelector(`.task-toggle[data-task-id="${taskId}"]`);
+            const taskToggleIcon = taskToggle?.querySelector('.task-toggle-icon');
+            
+            if (!taskDetails) return;
+            
+            const isExpanded = taskDetails.style.display !== 'none';
+            
+            if (isExpanded) {
+                // 折りたたむ
+                taskDetails.style.display = 'none';
+                if (taskToggleIcon) taskToggleIcon.textContent = '▶';
+            } else {
+                // 展開する
+                taskDetails.style.display = 'block';
+                if (taskToggleIcon) taskToggleIcon.textContent = '▼';
+                
+                // 参考資料を読み込む（まだ読み込んでいない場合）
+                const contentDiv = taskDetails.querySelector('.task-details-content');
+                if (contentDiv && !contentDiv.dataset.loaded) {
+                    const taskInfo = getTaskInfo(taskId, tasks);
+                    if (taskInfo) {
+                        await loadTaskDetails(taskId, taskInfo.item.name, taskInfo.category.category, formData);
+                    }
+                }
+            }
+        });
+    });
+
+    // タスク名のクリックで展開
+    document.querySelectorAll('.task-name').forEach(nameElement => {
+        nameElement.style.cursor = 'pointer';
     });
     
     formSection.style.display = 'none';
@@ -480,6 +530,156 @@ function updateTaskStatus(taskId, newStatus) {
     const [catIndex, itemIndex] = taskId.split('-').slice(1).map(Number);
     if (window.currentTasks[catIndex] && window.currentTasks[catIndex].items[itemIndex]) {
         window.currentTasks[catIndex].items[itemIndex].status = newStatus;
+    }
+}
+
+// タスクIDからタスク情報を取得
+function getTaskInfo(taskId, tasks) {
+    const [catIndex, itemIndex] = taskId.split('-').slice(1).map(Number);
+    if (tasks[catIndex] && tasks[catIndex].items[itemIndex]) {
+        return {
+            category: tasks[catIndex],
+            item: tasks[catIndex].items[itemIndex]
+        };
+    }
+    return null;
+}
+
+// タスクの参考資料を読み込む
+async function loadTaskDetails(taskId, taskName, category, formData) {
+    const taskDetails = document.getElementById(`task-details-${taskId}`);
+    if (!taskDetails) return;
+    
+    const loadingDiv = taskDetails.querySelector('.task-details-loading');
+    const contentDiv = taskDetails.querySelector('.task-details-content');
+    
+    try {
+        // APIを呼び出して参考資料を取得
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const API_URL = isLocalhost 
+            ? 'http://localhost:3000/api/task-details'
+            : '/api/task-details';
+        
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                taskName: taskName,
+                category: category,
+                eventTitle: formData.eventTitle,
+                eventDate: formData.eventDate,
+                eventDetails: formData.eventDetails
+            })
+        });
+
+        const details = await response.json();
+        
+        // 参考資料を表示
+        displayTaskDetails(contentDiv, details, taskName);
+        contentDiv.dataset.loaded = 'true';
+        loadingDiv.style.display = 'none';
+        contentDiv.style.display = 'block';
+        
+    } catch (error) {
+        console.error('参考資料の読み込みエラー:', error);
+        loadingDiv.textContent = '参考資料の読み込みに失敗しました。';
+    }
+}
+
+// タスク詳細を表示
+function displayTaskDetails(contentDiv, details, taskName) {
+    let html = `
+        <div class="task-details-section">
+            <h4 class="task-details-title">📝 ${taskName} - 参考資料</h4>
+    `;
+    
+    // 参考テンプレート
+    if (details.template) {
+        html += `
+            <div class="task-details-template">
+                <h5 class="task-details-subtitle">参考テンプレート</h5>
+                <div class="task-details-template-content">
+                    <pre>${escapeHtml(details.template)}</pre>
+                </div>
+                <button class="btn-copy-template" onclick="copyToClipboard(this)">📋 コピー</button>
+            </div>
+        `;
+    }
+    
+    // チェックリスト
+    if (details.checklist && details.checklist.length > 0) {
+        html += `
+            <div class="task-details-checklist">
+                <h5 class="task-details-subtitle">チェックリスト</h5>
+                <ul class="task-details-list">
+                    ${details.checklist.map(item => `<li>${escapeHtml(item)}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+    }
+    
+    // 注意点
+    if (details.notes && details.notes.length > 0) {
+        html += `
+            <div class="task-details-notes">
+                <h5 class="task-details-subtitle">注意点</h5>
+                <ul class="task-details-list">
+                    ${details.notes.map(note => `<li>${escapeHtml(note)}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+    }
+    
+    // 追加項目
+    if (details.additionalItems && details.additionalItems.length > 0) {
+        html += `
+            <div class="task-details-additional">
+                <h5 class="task-details-subtitle">追加で検討すべき項目</h5>
+                <ul class="task-details-list">
+                    ${details.additionalItems.map(item => `<li>${escapeHtml(item)}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+    }
+    
+    html += `</div>`;
+    
+    contentDiv.innerHTML = html;
+    
+    // コピーボタンのイベントリスナーを追加
+    contentDiv.querySelectorAll('.btn-copy-template').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const templateContent = this.previousElementSibling.querySelector('pre').textContent;
+            copyTextToClipboard(templateContent, this);
+        });
+    });
+}
+
+// HTMLエスケープ
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// テキストをクリップボードにコピー
+async function copyTextToClipboard(text, button) {
+    try {
+        await navigator.clipboard.writeText(text);
+        const originalText = button.textContent;
+        button.textContent = '✓ コピーしました';
+        button.style.backgroundColor = '#10b981';
+        button.style.color = 'white';
+        setTimeout(() => {
+            button.textContent = originalText;
+            button.style.backgroundColor = '';
+            button.style.color = '';
+        }, 2000);
+    } catch (err) {
+        console.error('コピーに失敗しました:', err);
+        alert('コピーに失敗しました。手動でコピーしてください。');
     }
 }
 

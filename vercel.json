@@ -3,6 +3,10 @@
     {
       "source": "/api/generate",
       "destination": "/api/generate"
+    },
+    {
+      "source": "/api/task-details",
+      "destination": "/api/task-details"
     }
   ]
 }
