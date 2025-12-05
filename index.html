@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交流会タスク管理 - タスクとスケジュールを自動生成</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">交</div>
+                </div>
+                <div class="header-text">
+                    <h1>交流会タスク管理</h1>
+                    <p>AIでタスクとスケジュールを自動生成</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="main">
+        <div class="container">
+            <!-- 入力フォーム -->
+            <div id="form-section" class="card">
+                <div class="form-header">
+                    <h2>イベント情報を入力</h2>
+                    <button id="try-sample-btn" class="btn-secondary" type="button">🎯 お試しボタン</button>
+                </div>
+
+                <form id="event-form" class="event-form">
+                    <div class="form-group">
+                        <label for="event-title">
+                            イベント名 <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="event-title" 
+                            name="event-title" 
+                            placeholder="例: 第2回赤坂マーケティング交流会"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event-date">
+                            イベント開催日 <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="date" 
+                            id="event-date" 
+                            name="event-date" 
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event-type">
+                            イベント種別 <span class="required">*</span>
+                        </label>
+                        <select id="event-type" name="event-type" required>
+                            <option value="networking">ネットワーキング交流会</option>
+                            <option value="seminar">セミナー・勉強会</option>
+                            <option value="workshop">ワークショップ</option>
+                            <option value="conference">カンファレンス</option>
+                            <option value="online">オンラインイベント</option>
+                            <option value="other">その他</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event-details">
+                            イベント詳細 <span class="required">*</span>
+                        </label>
+                        <textarea 
+                            id="event-details" 
+                            name="event-details" 
+                            rows="8"
+                            placeholder="イベントの目的、規模、想定参加者数、会場情報、特別な要件などを入力してください。&#10;&#10;例: マーケティング関連のビジネスパーソン向けのネットワーキングイベント。定員50名、会場は都心のカンファレンスルーム。登壇者によるピッチセッションあり。"
+                            required
+                        ></textarea>
+                        <p class="form-hint">
+                            <span id="details-length">0</span> 文字（詳細に入力すると、より適切なタスクリストが生成されます）
+                        </p>
+                    </div>
+
+                    <button type="submit" class="btn-primary" id="generate-btn">
+                        ✨ タスクリストを生成する
+                    </button>
+                </form>
+
+                <div id="loading" class="loading" style="display: none;">
+                    <div class="progress-container">
+                        <svg class="progress-ring" width="120" height="120">
+                            <circle class="progress-ring-circle-bg" cx="60" cy="60" r="54" fill="transparent" stroke="#e0e0e0" stroke-width="8"/>
+                            <circle class="progress-ring-circle" cx="60" cy="60" r="54" fill="transparent" stroke="#1e3a8a" stroke-width="8" stroke-linecap="round"/>
+                        </svg>
+                        <div class="progress-text">
+                            <span class="progress-percent">0</span>%
+                        </div>
+                    </div>
+                    <p class="loading-message">タスクリストを生成中...</p>
+                </div>
+            </div>
+
+            <!-- タスクリスト表示 -->
+            <div id="tasks-section" class="card" style="display: none; position: relative;">
+                <div id="tasks-loading" class="preview-loading">
+                    <div class="progress-container">
+                        <svg class="progress-ring" width="120" height="120">
+                            <circle class="progress-ring-circle-bg" cx="60" cy="60" r="54" fill="transparent" stroke="#e0e0e0" stroke-width="8"/>
+                            <circle class="progress-ring-circle" cx="60" cy="60" r="54" fill="transparent" stroke="#1e3a8a" stroke-width="8" stroke-linecap="round"/>
+                        </svg>
+                        <div class="progress-text">
+                            <span class="progress-percent">0</span>%
+                        </div>
+                    </div>
+                    <p class="loading-message">再生成中...</p>
+                </div>
+
+                <div class="tasks-header">
+                    <h2>生成されたタスクリスト</h2>
+                    <div class="tasks-actions">
+                        <button id="regenerate-btn" class="btn-secondary">🔄 再生成</button>
+                        <button id="export-btn" class="btn-secondary">📋 CSV出力</button>
+                        <button id="reset-btn" class="btn-secondary">🔄 新規作成</button>
+                    </div>
+                </div>
+
+                <div id="tasks-content">
+                    <div id="tasks-timeline"></div>
+                    <div id="tasks-list"></div>
+                </div>
+
+                <div class="info-box">
+                    <p>💡 <strong>使い方:</strong> 各タスクの状態を変更できます。CSV出力ボタンでタスクリストをダウンロードできます。「再生成」ボタンで、異なるタスクリストを生成することもできます。</p>
+                </div>
+            </div>
+
+            <!-- 使い方ガイド -->
+            <div id="guide-section" class="card guide-card">
+                <h3>📖 使い方</h3>
+                <ol class="guide-list">
+                    <li>「お試しボタン」をクリックして、サンプルデータで動作を確認できます</li>
+                    <li>イベント名、開催日、種別、詳細を入力してください</li>
+                    <li>「タスクリストを生成する」ボタンをクリックすると、AIがタスクリストとスケジュールを作成します</li>
+                    <li>生成されたタスクの状態を管理し、必要に応じて編集できます</li>
+                    <li>CSV出力ボタンでタスクリストをダウンロードできます</li>
+                </ol>
+            </div>
+        </div>
+    </main>
+
+    <!-- フッター -->
+    <footer class="footer">
+        <div class="container">
+            <p>交流会タスク管理 - AIでタスクとスケジュールを自動生成</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
+

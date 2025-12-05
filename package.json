@@ -1,0 +1,14 @@
+{
+  "name": "kouryu-task-manager",
+  "version": "1.0.0",
+  "description": "交流会のタスクとスケジュールをAIで自動生成するツール",
+  "type": "module",
+  "main": "api/generate.js",
+  "dependencies": {
+    "openai": "^4.20.0"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
+}
+
