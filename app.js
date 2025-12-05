@@ -1,11 +1,11 @@
 // サンプルデータ
 const SAMPLE_DATA = {
-    eventTitle: '第2回赤坂マーケティング交流会',
-    eventDate: '2026-01-21',
+    eventTitle: 'ネットワーキング交流会',
+    eventDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 60日後
     eventType: 'networking',
-    eventDetails: `マーケティング関連のビジネスパーソン向けのネットワーキングイベント。
+    eventDetails: `ビジネスパーソン向けのネットワーキングイベント。
 定員50名、会場は都心のカンファレンスルーム。
-プロ人材による登壇ピッチセッションあり。
+登壇者によるピッチセッションあり。
 立食形式で交流タイムを設ける予定。`
 };
 
@@ -231,13 +231,13 @@ function generateTasksTemplate(formData) {
                     ]
                 },
                 {
-                    name: '既存への声かけ',
+                    name: '既存企業へのお声がけ',
                     dueDate: formatDate(addDays(eventDate, -60)),
                     status: 'pending'
                 },
                 {
-                    name: '顧問への声かけ',
-                    dueDate: formatDate(addDays(eventDate, -40)),
+                    name: 'SNS・Webサイトでの告知',
+                    dueDate: formatDate(addDays(eventDate, -50)),
                     status: 'pending'
                 }
             ]
@@ -288,7 +288,7 @@ function generateTasksTemplate(formData) {
                     time: '19:00'
                 },
                 {
-                    name: 'プロ人材ピッチ',
+                    name: '登壇者によるピッチ',
                     dueDate: formatDate(eventDate),
                     status: 'pending',
                     time: '19:10～19:30'

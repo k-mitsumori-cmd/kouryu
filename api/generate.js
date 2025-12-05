@@ -82,9 +82,10 @@ ${eventDetails}
 1. 集客・広報
    - メール文案作成
    - 招待状送付（メール）
-   - リマインド通知配信
-   - 既存への声かけ
-   - 顧問への声かけ
+   - リマインド通知配信（参加確定者向け）
+   - 既存企業へのお声がけ
+   - SNS・Webサイトでの告知
+   - プレスリリース作成・配信（必要に応じて）
    など
 
 2. 当日運営準備
@@ -235,13 +236,13 @@ function generateTemplateTasks(eventDateObj, formatDate, addDays) {
                         ]
                     },
                     {
-                        name: '既存への声かけ',
+                        name: '既存企業へのお声がけ',
                         dueDate: formatDate(addDays(eventDateObj, -60)),
                         status: 'pending'
                     },
                     {
-                        name: '顧問への声かけ',
-                        dueDate: formatDate(addDays(eventDateObj, -40)),
+                        name: 'SNS・Webサイトでの告知',
+                        dueDate: formatDate(addDays(eventDateObj, -50)),
                         status: 'pending'
                     }
                 ]
@@ -292,7 +293,7 @@ function generateTemplateTasks(eventDateObj, formatDate, addDays) {
                         time: '19:00'
                     },
                     {
-                        name: '登壇者ピッチ',
+                        name: '登壇者によるピッチ',
                         dueDate: formatDate(eventDateObj),
                         status: 'pending',
                         time: '19:10～19:30'
