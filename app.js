@@ -1,13 +1,85 @@
-// サンプルデータ
-const SAMPLE_DATA = {
-    eventTitle: 'ネットワーキング交流会',
-    eventDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 60日後
-    eventType: 'networking',
-    eventDetails: `ビジネスパーソン向けのネットワーキングイベント。
+// サンプルデータ（複数パターン）
+const SAMPLE_DATA_ARRAY = [
+    {
+        eventTitle: 'B2Bマーケティング交流会',
+        eventDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 60日後
+        eventType: 'networking',
+        eventDetails: `B2Bマーケティングに関わるビジネスパーソン向けのネットワーキングイベント。
 定員50名、会場は都心のカンファレンスルーム。
-登壇者によるピッチセッションあり。
-立食形式で交流タイムを設ける予定。`
-};
+マーケティング責任者による成功事例のピッチセッションあり。
+立食形式で交流タイムを設け、業界の最新トレンドについて情報交換する予定。`
+    },
+    {
+        eventTitle: 'DX推進セミナー',
+        eventDate: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 45日後
+        eventType: 'seminar',
+        eventDetails: `デジタルトランスフォーメーション推進に関心のある企業経営者・管理職向けのセミナー。
+定員30名、会場は都心のセミナールーム。
+DX成功事例の紹介と実践的なワークショップを実施。
+参加企業同士の情報交換も可能。`
+    },
+    {
+        eventTitle: '営業力向上ワークショップ',
+        eventDate: new Date(Date.now() + 75 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 75日後
+        eventType: 'workshop',
+        eventDetails: `営業チームのパフォーマンス向上を目指す実践的なワークショップ。
+定員20名、少人数制で密度の高い内容。
+ロールプレイングやケーススタディを交えた実践形式。
+営業ノウハウの共有とネットワーキングも行う。`
+    },
+    {
+        eventTitle: 'スタートアップカンファレンス',
+        eventDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 90日後
+        eventType: 'conference',
+        eventDetails: `スタートアップ企業と投資家・支援機関をつなぐカンファレンス。
+定員100名、大型会場で開催。
+複数のスタートアップによるピッチ、投資家とのマッチングセッションあり。
+展示ブースも設ける予定。`
+    },
+    {
+        eventTitle: 'オンライン勉強会「最新AI活用事例」',
+        eventDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30日後
+        eventType: 'online',
+        eventDetails: `最新のAI活用事例を学ぶオンライン勉強会。
+Zoomを使用したウェビナー形式で開催。
+AI導入成功事例の紹介とQ&Aセッション。
+参加者同士のチャットでの交流も可能。
+資料は後日ダウンロード可能。`
+    },
+    {
+        eventTitle: '業界交流会「テクノロジー×ビジネス」',
+        eventDate: new Date(Date.now() + 50 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 50日後
+        eventType: 'networking',
+        eventDetails: `テクノロジー企業と既存企業をつなぐ業界交流会。
+定員60名、会場は都心のホテル宴会場。
+業界の専門家によるショートトークと立食形式の交流タイム。
+パートナーシップ構築の機会としても活用可能。`
+    },
+    {
+        eventTitle: 'データ分析セミナー「効果的なKPI設定」',
+        eventDate: new Date(Date.now() + 55 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 55日後
+        eventType: 'seminar',
+        eventDetails: `データドリブンな経営を目指す企業向けのセミナー。
+定員40名、実践的な内容で構成。
+効果的なKPI設定方法と分析手法について解説。
+成功事例の紹介とグループディスカッションも実施。`
+    },
+    {
+        eventTitle: 'カスタマーサクセス勉強会',
+        eventDate: new Date(Date.now() + 35 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 35日後
+        eventType: 'workshop',
+        eventDetails: `カスタマーサクセスに関する実践的な勉強会。
+定員25名、少人数制で深い学びを提供。
+顧客満足度向上のための具体的な手法をワークショップ形式で実施。
+参加者同士のベストプラクティス共有も行う。`
+    }
+];
+
+// ランダムにサンプルデータを取得する関数
+function getRandomSampleData() {
+    const randomIndex = Math.floor(Math.random() * SAMPLE_DATA_ARRAY.length);
+    return SAMPLE_DATA_ARRAY[randomIndex];
+}
 
 // DOM要素の取得
 const formSection = document.getElementById('form-section');
@@ -28,6 +100,7 @@ const exportBtn = document.getElementById('export-btn');
 const resetBtn = document.getElementById('reset-btn');
 const tasksTimeline = document.getElementById('tasks-timeline');
 const tasksList = document.getElementById('tasks-list');
+const logoHome = document.getElementById('logo-home');
 
 // 文字数カウント
 eventDetailsTextarea.addEventListener('input', () => {
@@ -36,11 +109,12 @@ eventDetailsTextarea.addEventListener('input', () => {
 
 // お試しボタン
 trySampleBtn.addEventListener('click', () => {
-    eventTitleInput.value = SAMPLE_DATA.eventTitle;
-    eventDateInput.value = SAMPLE_DATA.eventDate;
-    eventTypeSelect.value = SAMPLE_DATA.eventType;
-    eventDetailsTextarea.value = SAMPLE_DATA.eventDetails;
-    detailsLength.textContent = SAMPLE_DATA.eventDetails.length;
+    const sampleData = getRandomSampleData();
+    eventTitleInput.value = sampleData.eventTitle;
+    eventDateInput.value = sampleData.eventDate;
+    eventTypeSelect.value = sampleData.eventType;
+    eventDetailsTextarea.value = sampleData.eventDetails;
+    detailsLength.textContent = sampleData.eventDetails.length;
     
     eventTitleInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
     eventTitleInput.focus();
@@ -778,5 +852,27 @@ window.addEventListener('DOMContentLoaded', () => {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 60);
     eventDateInput.value = formatDate(tomorrow);
+    
+    // ロゴをクリックしてホームに戻る
+    if (logoHome) {
+        logoHome.addEventListener('click', () => {
+            // フォームをリセット
+            eventForm.reset();
+            detailsLength.textContent = '0';
+            
+            // セクションを表示/非表示
+            formSection.style.display = 'block';
+            guideSection.style.display = 'block';
+            tasksSection.style.display = 'none';
+            
+            // データをクリア
+            window.currentTasks = null;
+            window.currentFormData = null;
+            window.lastFormData = null;
+            
+            // フォームセクションにスクロール
+            formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }
 });
 

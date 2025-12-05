@@ -49,6 +49,15 @@ body {
     gap: 12px;
 }
 
+.logo {
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.logo:hover {
+    opacity: 0.8;
+}
+
 .logo-icon {
     width: 40px;
     height: 40px;
@@ -60,6 +69,11 @@ body {
     justify-content: center;
     font-weight: bold;
     font-size: 20px;
+    transition: transform 0.2s;
+}
+
+.logo:hover .logo-icon {
+    transform: scale(1.05);
 }
 
 .header-text h1 {
